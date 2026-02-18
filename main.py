@@ -102,24 +102,13 @@ class Game():
             self.reset_button.pack(pady=5)
     def update_ui(self):
         self.score_board["text"] = f"SCORE\n{self.score}"
-        tmp_tiles = []
-        for i in range(SIZE):
-            row = []
-            for j in range(SIZE):
-                num = self.nums[i][j]
-                label = tk.Label(
-                        self.frame,
-                        width=4,
-                        height=2,
-                        bg=self.get_color(num)[0],
-                        fg=self.get_color(num)[1],
-                        text = num if num != 0 else "",
-                        font=("Arial", 24, "bold")
-                        )
-                label.grid(row=i, column=j, padx=5, pady=5)
-                row.append(label)
-            tmp_tiles.append(row)
-        self.tiles = tmp_tiles
+        for i, row in enumerate(self.tiles):
+            for j, tile in enumerate(row):
+                num = self.nums[i, j]
+                st = str(num) if num != 0 else ""
+                if tile["text"] != st:
+                    backg, foreg = self.get_color(num)
+                    tile.config(text=st, bg=backg, fg=foreg)
     def _combine(self):
         """
         Note: the function assumes that your move direction is Left.
