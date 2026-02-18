@@ -14,17 +14,39 @@ class Game():
         self.nums = nums or [[0 for _ in range(SIZE)] for _ in range(SIZE)]
         self.root = root
         self.root.bind("<Key>", self.key_hand)
-        self.score_frame = tk.Frame(root, bg="gray")
+        self.score_frame = tk.Frame(root)
         self.score_frame.pack(pady=5)
-        self.score_board = tk.Label(self.score_frame, width=20, height=2, text=f"SCORE \n {self.score}", bg=self.get_color(4)[0], fg=self.get_color(4)[1], font=("Arial", 15, "bold"))
+        self.score_board = tk.Label(self.score_frame, width=14, height=2, text=f"SCORE\n{self.score}", bg=self.get_color(4)[0], fg=self.get_color(4)[1], font=("Arial", 15, "bold"))
         self.score_board.grid(row=1, column=1, padx=5)
 
         # max score board
         highscore = file_utils.read_highscore()
-        self.highscore_board = tk.Label(self.score_frame, width=20, height=2, text=f"BEST \n {highscore}", bg=self.get_color(2)[0], fg=self.get_color(2)[1], font=("Arial", 15, "bold"))
+        self.highscore_board = tk.Label(self.score_frame,
+                                        width=14,
+                                        height=2,
+                                        text=f"BEST\n{highscore}",
+                                        bg=self.get_color(2)[0], 
+                                        fg=self.get_color(2)[1], 
+                                        font=("Arial", 15, "bold"), 
+                                        highlightthickness=2, 
+                                        highlightcolor=self.get_color(2)[1], 
+                                        highlightbackground=self.get_color(2)[1], 
+                                       )
         self.highscore_board.grid(row=1, column=2, padx=5)
 
 
+        self.reset_button = tk.Button(root,
+                                       width=14,
+                                       height=2, 
+                                       text="NEW GAME", 
+                                       bg=self.get_color(2)[0], 
+                                       fg=self.get_color(2)[1], 
+                                       font=("Arial", 15, "bold"),
+                                        highlightthickness=2, 
+                                        highlightcolor=self.get_color(2)[1], 
+                                        highlightbackground=self.get_color(2)[1], 
+                                       command=self.restart_game
+                                       )
         self.frame = tk.Frame(root, bg="gray")
         self.frame.pack()
         self.tiles = []
@@ -59,6 +81,14 @@ class Game():
             new_mat.append(row[::-1])
         return new_mat
 
+    def restart_game(self):
+        self.score = 0
+        self.nums = [[0 for _ in range(SIZE)] for _ in range(SIZE)]
+        self.can_play = True
+        self.spawn()
+        self.spawn()
+        self.reset_button.pack_forget()
+        self.update_ui()
     def update(self):
         self.update_ui()
         if self.game_over():
@@ -67,8 +97,9 @@ class Game():
             if self.score > file_utils.read_highscore():
                 file_utils.write_highscore(self.score)
                 print(f"write {self.score} as highscore")
+            self.reset_button.pack(pady=5)
     def update_ui(self):
-        self.score_board["text"] = f"SCORE \n {self.score}"
+        self.score_board["text"] = f"SCORE\n{self.score}"
         tmp_tiles = []
         for i in range(SIZE):
             row = []
@@ -97,7 +128,6 @@ class Game():
                     self.score += 2 * row[idx]
                     self.nums[i][idx] = 2 * row[idx]
                     self.nums[i][idx+1] = 0
-
 
 
     def move_rows_left(self):
