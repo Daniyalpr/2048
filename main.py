@@ -165,6 +165,8 @@ class Game():
             self.move(key_name)
             self.spawn()
             self.update()
+        if key_name == "Return" and not self.can_play:
+            self.restart_game()
 
     def game_over(self):
         return (self.nums == 0).sum() == 0
@@ -177,10 +179,11 @@ class Game():
 
     def get_color(self, num:int):
         """
-        num: the number that you want to get color of.
-        Note: the function will return a tuple which the first
+        The function will return a tuple which the first
         element corrosponds to background color and the second
         one is foreground color.
+
+        num: the number that you want to get color of.
         """
         colors = {
             0: ("#cdc1b4", "#776e65"),      
