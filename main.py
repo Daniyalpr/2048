@@ -143,4 +143,5 @@ class Game():
         return colors[num]
 
 game = Game(root)
+root.title("2048 Game")
 root.mainloop()
