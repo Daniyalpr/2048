@@ -14,6 +14,7 @@ class Game():
         self.frame = tk.Frame(root, bg="gray")
         self.frame.pack()
         self.tiles = []
+        self.score = 0
         # Creating tiles
         for i in range(SIZE):
             row = []
@@ -35,6 +36,15 @@ class Game():
         self.spawn()
         self.spawn()
         self.update_ui()
+
+    def transpose(self, mat):
+        return [list(row) for row in zip(*mat)]
+    def reverse(self, mat):
+        new_mat = []
+        for row in mat:
+            new_mat.append(row[::-1])
+        return new_mat
+
     def update_ui(self):
         tmp_tiles = []
         for i in range(SIZE):
@@ -55,23 +65,47 @@ class Game():
             tmp_tiles.append(row)
         self.tiles = tmp_tiles
     def _combine(self):
-        pass
+        """
+        Note: the function assumes that your move direction is Left.
+        """
+        for i, row in enumerate(self.nums):
+            for idx in range(len(row)-1):
+                if row[idx] == row[idx+1]:
+                    self.nums[i][idx] = 2 * row[idx]
+                    self.nums[i][idx+1] = 0
 
+
+
+    def move_rows_left(self):
+        for idx, row in enumerate(self.nums):
+          new_row = [i for i in row if i != 0]
+          new_row += [0] * (len(row) - len(new_row))
+          self.nums[idx] = new_row
+        
     def move(self, dire:str):
-        if dire == "Left":
-            for idx, row in enumerate(self.nums):
-                new_row = [i for i in row if i != 0]
-                new_row += [0] * (len(row) - len(new_row))
-                self.nums[idx] = new_row
-
-        self.spawn()
-        self.update_ui()
+        if dire == "Left" or dire.lower() == "a":
+            self.move_rows_left()
+            self._combine()
+            self.move_rows_left()
+        if dire == "Right" or dire.lower() == "d":
+            self.nums = self.reverse(self.nums)
+            self.move("Left")
+            self.nums = self.reverse(self.nums)
+        if dire == "Up" or dire.lower() == "w":
+            self.nums = self.transpose(self.nums)
+            self.move("Left")
+            self.nums = self.transpose(self.nums)
+        if dire == "Down" or dire.lower() == "s":
+            self.nums = self.transpose(self.nums)
+            self.move("Right")
+            self.nums = self.transpose(self.nums)
 
 
     def key_hand(self, key):
         key_name = key.keysym
-        if key_name in ["Right", "Left", "Down", "Up"]:
+        if key_name in ["Right", "Left", "Down", "Up", "d", "a", "s", "w", "D", "A", "S", "W"]:
             self.move(key_name)
+            self.spawn()
         self.update_ui()
 
     def spawn(self):
