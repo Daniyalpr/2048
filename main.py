@@ -131,18 +131,21 @@ class Game():
         
     def move(self, dire:str):
         if dire == "Left" or dire.lower() == "a":
+            nums_copy = self.nums.copy()
             self.move_rows_left()
             self._combine()
             self.move_rows_left()
-        if dire == "Right" or dire.lower() == "d":
+            if not np.array_equal(nums_copy, self.nums):
+                self.spawn()
+        elif dire == "Right" or dire.lower() == "d":
             self.nums = self.nums[:, ::-1]
             self.move("Left")
             self.nums = self.nums[:, ::-1]
-        if dire == "Up" or dire.lower() == "w":
+        elif dire == "Up" or dire.lower() == "w":
             self.nums = self.nums.T
             self.move("Left")
             self.nums = self.nums.T
-        if dire == "Down" or dire.lower() == "s":
+        elif dire == "Down" or dire.lower() == "s":
             self.nums = self.nums.T
             self.move("Right")
             self.nums = self.nums.T
@@ -152,7 +155,6 @@ class Game():
         key_name = key.keysym
         if key_name in ["Right", "Left", "Down", "Up", "d", "a", "s", "w", "D", "A", "S", "W"] and self.can_play:
             self.move(key_name)
-            self.spawn()
             self.update()
         if key_name == "Return" and not self.can_play:
             self.restart_game()
