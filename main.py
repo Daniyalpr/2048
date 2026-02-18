@@ -1,6 +1,7 @@
 import file_utils
 import random
 import tkinter as tk
+import numpy as np
 root = tk.Tk()
 SIZE = 4
 TILE_SIZE = 100
@@ -11,7 +12,9 @@ class Game():
         """
         self.can_play = True
         self.score = 0
-        self.nums = nums or [[0 for _ in range(SIZE)] for _ in range(SIZE)]
+        self.nums = np.array(nums) or np.full((SIZE, SIZE), 0)
+        self.prev1_nums = None
+        self.prev2_nums = None
         self.root = root
         self.root.bind("<Key>", self.key_hand)
         self.score_frame = tk.Frame(root)
@@ -83,7 +86,7 @@ class Game():
 
     def restart_game(self):
         self.score = 0
-        self.nums = [[0 for _ in range(SIZE)] for _ in range(SIZE)]
+        self.nums = np.full((SIZE, SIZE), 0)
         self.can_play = True
         self.spawn()
         self.spawn()
@@ -96,7 +99,6 @@ class Game():
             print("Game Over")
             if self.score > file_utils.read_highscore():
                 file_utils.write_highscore(self.score)
-                print(f"write {self.score} as highscore")
             self.reset_button.pack(pady=5)
     def update_ui(self):
         self.score_board["text"] = f"SCORE\n{self.score}"
@@ -126,15 +128,17 @@ class Game():
             for idx in range(len(row)-1):
                 if row[idx] == row[idx+1]:
                     self.score += 2 * row[idx]
-                    self.nums[i][idx] = 2 * row[idx]
-                    self.nums[i][idx+1] = 0
+                    self.nums[i, idx] = 2 * row[idx]
+                    self.nums[i, idx+1] = 0
 
 
     def move_rows_left(self):
+        new_mat = np.full((SIZE, SIZE), None)
         for idx, row in enumerate(self.nums):
-          new_row = [i for i in row if i != 0]
-          new_row += [0] * (len(row) - len(new_row))
-          self.nums[idx] = new_row
+          new_row = row[row != 0]
+          new_row = np.append(new_row, [0] * (len(row) - len(new_row)))
+          new_mat[idx] = new_row
+        self.nums = new_mat
         
     def move(self, dire:str):
         if dire == "Left" or dire.lower() == "a":
@@ -142,17 +146,17 @@ class Game():
             self._combine()
             self.move_rows_left()
         if dire == "Right" or dire.lower() == "d":
-            self.nums = self.reverse(self.nums)
+            self.nums = self.nums[:, ::-1]
             self.move("Left")
-            self.nums = self.reverse(self.nums)
+            self.nums = self.nums[:, ::-1]
         if dire == "Up" or dire.lower() == "w":
-            self.nums = self.transpose(self.nums)
+            self.nums = self.nums.T
             self.move("Left")
-            self.nums = self.transpose(self.nums)
+            self.nums = self.nums.T
         if dire == "Down" or dire.lower() == "s":
-            self.nums = self.transpose(self.nums)
+            self.nums = self.nums.T
             self.move("Right")
-            self.nums = self.transpose(self.nums)
+            self.nums = self.nums.T
 
 
     def key_hand(self, key):
@@ -163,24 +167,13 @@ class Game():
             self.update()
 
     def game_over(self):
-        emp = []
-        for i in range(SIZE):
-            for j in range(SIZE):
-                if self.nums[i][j] == 0:
-                    emp.append((i, j))
-        if len(emp) == 0:
-            return True
-        return False
+        return (self.nums == 0).sum() == 0
     def spawn(self):
-        emp = []
         rand = random.random()
         spawn_num = 2 if rand <= 0.9 else 4
-        for i in range(SIZE):
-            for j in range(SIZE):
-                if self.nums[i][j] == 0:
-                    emp.append((i, j))
+        emp = list(zip(*(np.where(self.nums == 0))))
         x, y = random.choice(emp)
-        self.nums[x][y] = spawn_num
+        self.nums[x, y] = spawn_num
 
     def get_color(self, num:int):
         """
