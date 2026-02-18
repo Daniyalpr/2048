@@ -10,6 +10,7 @@ class Game():
         """
         self.nums = nums or [[0 for _ in range(SIZE)] for _ in range(SIZE)]
         self.root = root
+        self.root.bind("<Key>", self.key_hand)
         self.frame = tk.Frame(root, bg="gray")
         self.frame.pack()
         self.tiles = []
@@ -53,6 +54,25 @@ class Game():
                 row.append(label)
             tmp_tiles.append(row)
         self.tiles = tmp_tiles
+    def _combine(self):
+        pass
+
+    def move(self, dire:str):
+        if dire == "Left":
+            for idx, row in enumerate(self.nums):
+                new_row = [i for i in row if i != 0]
+                new_row += [0] * (len(row) - len(new_row))
+                self.nums[idx] = new_row
+
+        self.spawn()
+        self.update_ui()
+
+
+    def key_hand(self, key):
+        key_name = key.keysym
+        if key_name in ["Right", "Left", "Down", "Up"]:
+            self.move(key_name)
+        self.update_ui()
 
     def spawn(self):
         emp = []
