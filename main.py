@@ -54,7 +54,23 @@ class Game():
                                         highlightbackground=self.get_color(2)[1], 
                                        command=self.restart_game
                                        )
+        self.redo_left=2
+        self.redo_button = tk.Button(
+                self.right_frame,
+                width=5,
+                height=1,
+                text=f"Redo {self.redo_left}",
+                bg=self.get_color(4)[0],
+                fg=self.get_color(4)[1],
+                font=("Arial", 12, "bold"),
+                highlightthickness=2,
+                highlightcolor=self.get_color(4)[1],
+                highlightbackground=self.get_color(4)[1],
+                command=self.redo
+                )
         self.reset_button.pack(pady=4)
+        self.redo_button.pack()
+        self.redo_button_changed = False
         self.frame = tk.Frame(self.left_frame, bg="gray")
         self.frame.grid(row=1, column=0)
         self.tiles = []
@@ -95,10 +111,22 @@ class Game():
             new_mat.append(row[::-1])
         return new_mat
 
+    def redo(self):
+        if self.redo_left <= 0 or self.prev1_nums is None:
+            self.update_ui()
+            return 
+        self.redo_left -= 1
+        self.nums, self.prev1_nums, self.prev2_nums = self.prev1_nums, self.prev2_nums, None
+        self.redo_button_changed = True
+        self.update_ui()
+        print("Redo")
+
     def restart_game(self):
         self.score = 0
         self.nums = np.full((SIZE, SIZE), 0)
         self.can_play = True
+        self.redo_left = 2
+        self.redo_button_changed = True
         self.spawn()
         self.spawn()
         self.update_ui()
@@ -118,6 +146,17 @@ class Game():
                 if tile["text"] != st:
                     backg, foreg = self.get_color(num)
                     tile.config(text=st, bg=backg, fg=foreg)
+        # Updating redo button
+        if self.redo_button_changed:
+            backg, foreg = self.get_color(4) if self.redo_left > 0 else self.get_color(0)
+            self.redo_button.config(text=f"Redo {self.redo_left}", bg=backg, fg=foreg, 
+                       highlightcolor=foreg, 
+                       highlightbackground=foreg, 
+                        )
+            self.redo_button_changed = False
+
+
+
     def _combine(self):
         """
         Note: the function assumes that your move direction is Left.
@@ -140,12 +179,9 @@ class Game():
         
     def move(self, dire:str):
         if dire == "Left" or dire.lower() == "a":
-            nums_copy = self.nums.copy()
             self.move_rows_left()
             self._combine()
             self.move_rows_left()
-            if not np.array_equal(nums_copy, self.nums):
-                self.spawn()
         elif dire == "Right" or dire.lower() == "d":
             self.nums = self.nums[:, ::-1]
             self.move("Left")
@@ -157,14 +193,18 @@ class Game():
         elif dire == "Down" or dire.lower() == "s":
             self.nums = self.nums.T
             self.move("Right")
-            self.nums = self.nums.T
+            self.nums.T
 
 
     def key_hand(self, key):
         key_name = key.keysym
         if key_name in ["Right", "Left", "Down", "Up", "d", "a", "s", "w", "D", "A", "S", "W"] and self.can_play:
+            nums_copy = self.nums.copy()
             self.move(key_name)
-            self.update()
+            if not np.array_equal(nums_copy, self.nums):
+                self.prev1_nums, self.prev2_nums = nums_copy, self.prev1_nums
+                self.spawn()
+                self.update()
         if key_name == "Return" and not self.can_play:
             self.restart_game()
 
