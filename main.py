@@ -6,6 +6,10 @@ root = tk.Tk()
 SIZE = 4
 TILE_SIZE = 100
 class Game():
+    str_colors = {
+            "green": "#7fbf7f",
+            "red": "#d96b6b"
+            }
     def __init__(self, root, nums:list=None):
         """
         nums: A 2d list conataining numbers in string. Note that 0 means empty tile.
@@ -75,6 +79,19 @@ class Game():
         self.frame.grid(row=1, column=0)
         self.tiles = []
         self.score = 0
+
+        self.status_frame = tk.Frame(self.right_frame)
+        self.status_frame.pack(pady=10)
+        self.status_txt = tk.Label(self.status_frame, text="you can play!",
+                                 font=("Arial", 9, "bold"),
+                                 fg=self.str_colors["green"],
+                                 )
+        self.greet_txt = tk.Label(self.status_frame, text="...",
+                                 font=("Arial", 9, "bold"),
+                                 fg=self.get_color(2)[1],
+                                 )
+        self.status_txt.pack(pady=2)
+        self.greet_txt.pack(pady=4)
         # Const UI elemnts
         copyright_txt = tk.Label(self.right_frame, text="© 2026 github.com/Daniyalpr.\n All rights reserved :)",
                                  font=("Arial", 9, "bold"),
@@ -112,8 +129,7 @@ class Game():
         return new_mat
 
     def redo(self):
-        if self.redo_left <= 0 or self.prev1_nums is None:
-            self.update_ui()
+        if self.redo_left <= 0 or self.prev1_nums is None or not self.can_play:
             return 
         self.redo_left -= 1
         self.nums, self.prev1_nums, self.prev2_nums = self.prev1_nums, self.prev2_nums, None
@@ -127,6 +143,8 @@ class Game():
         self.can_play = True
         self.redo_left = 2
         self.redo_button_changed = True
+        self.status_txt.config(text="you can play!", fg=str_colors["green"])
+        self.greet_txt.config(text="...")
         self.spawn()
         self.spawn()
         self.update_ui()
@@ -137,6 +155,49 @@ class Game():
             print("Game Over")
             if self.score > file_utils.read_highscore():
                 file_utils.write_highscore(self.score)
+        self.update_ui()
+    def get_greeting(self):
+        high_score = [
+                "LEGEND STATUS UNLOCKED 🏆",
+                "New high score!! You're unstoppable 🚀",
+                "Board destroyed. Absolute domination 👑",
+                "You cooked. And it was gourmet ✨",
+                "Tiles trembling right now 🎯",
+                "Brain = 200 IQ 🧠",
+                "That was elite gameplay 🔥",
+                "You didn’t win… you conquered ⚔️"
+                ]
+        med_score = [
+                "Solid run! 👏",
+                "Nice moves there ✨",
+                "You're improving! 🚀",
+                "That was smooth 😌",
+                "Almost legendary 👀",
+                "Keep going — you're close ⚡",
+                "Progress detected 📈",
+                "Next round is yours 😎"
+                ]
+
+        low_score = [
+                "The tiles said 'not today' 😭",
+                "Warm-up round? 👀",
+                "Plot twist: the board fought back 😤",
+                "Oops 😅 Try again!",
+                "That was just practice mode 🎮",
+                "Shake it off and run it back 💪",
+                "Every legend has a backstory 📖",
+                "Redemption arc loading... ⏳"
+                ]
+
+        if self.score == int(file_utils.read_highscore()):
+            return "Congrats, thats a new highscore!"   
+        if self.score >= 2800:
+            return random.choice(high_score)
+        elif 1800 <= self.score:
+            return random.choice(med_score)
+        else: 
+            return random.choice(low_score)
+
     def update_ui(self):
         self.score_board["text"] = f"SCORE\n{self.score}"
         for i, row in enumerate(self.tiles):
@@ -154,8 +215,10 @@ class Game():
                        highlightbackground=foreg, 
                         )
             self.redo_button_changed = False
-
-
+        if not self.can_play:
+            self.status_txt.config(fg=self.str_colors["red"], text="game over")
+            self.greet_txt.config(text=self.get_greeting())
+            self.update_status = False
 
     def _combine(self, mat):
         """
