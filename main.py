@@ -7,8 +7,8 @@ SIZE = 4
 TILE_SIZE = 100
 class Game():
     str_colors = {
-            "green": "#7fbf7f",
-            "red": "#d96b6b"
+            "green": "#2a9d8f",
+            "red": "#e63946"
             }
     def __init__(self, root, nums:list=None):
         """
@@ -44,8 +44,35 @@ class Game():
                                         highlightbackground=self.get_color(2)[1], 
                                        )
         self.highscore_board.grid(row=1, column=2, padx=5)
-
-
+        self.status_txt = tk.Label(self.right_frame, text="PLAY!",
+                                 font=("Arial", 20, "bold"),
+                                 fg=self.str_colors["green"],
+                                 )
+        self.status_txt.pack()
+        load_button = tk.Button(self.right_frame,
+                                       width=14,
+                                       height=2, 
+                                       text="LOAD", 
+                                       bg=self.get_color(2)[0], 
+                                       fg=self.get_color(2)[1], 
+                                       font=("Arial", 15, "bold"),
+                                        highlightthickness=2, 
+                                        highlightcolor=self.get_color(2)[1], 
+                                        highlightbackground=self.get_color(2)[1], 
+                                       command=self.load_game
+                                       )
+        save_button = tk.Button(self.right_frame,
+                                       width=14,
+                                       height=2, 
+                                       text="SAVE", 
+                                       bg=self.get_color(2)[0], 
+                                       fg=self.get_color(2)[1], 
+                                       font=("Arial", 15, "bold"),
+                                        highlightthickness=2, 
+                                        highlightcolor=self.get_color(2)[1], 
+                                        highlightbackground=self.get_color(2)[1], 
+                                       command=self.save_game
+                                       )
         self.reset_button = tk.Button(self.right_frame,
                                        width=14,
                                        height=2, 
@@ -58,46 +85,42 @@ class Game():
                                         highlightbackground=self.get_color(2)[1], 
                                        command=self.restart_game
                                        )
-        self.redo_left=2
-        self.redo_button = tk.Button(
+        self.undo_left=2
+        self.undo_button = tk.Button(
                 self.right_frame,
                 width=5,
                 height=1,
-                text=f"Redo {self.redo_left}",
+                text=f"undo {self.undo_left}",
                 bg=self.get_color(4)[0],
                 fg=self.get_color(4)[1],
                 font=("Arial", 12, "bold"),
                 highlightthickness=2,
                 highlightcolor=self.get_color(4)[1],
                 highlightbackground=self.get_color(4)[1],
-                command=self.redo
+                command=self.undo
                 )
+        load_button.pack(pady=(20, 0))
+        save_button.pack(pady=4)
         self.reset_button.pack(pady=4)
-        self.redo_button.pack()
-        self.redo_button_changed = False
+        self.undo_button.pack()
+        self.undo_button_changed = False
         self.frame = tk.Frame(self.left_frame, bg="gray")
         self.frame.grid(row=1, column=0)
         self.tiles = []
         self.score = 0
 
-        self.status_frame = tk.Frame(self.right_frame)
-        self.status_frame.pack(pady=10)
-        self.status_txt = tk.Label(self.status_frame, text="you can play!",
-                                 font=("Arial", 9, "bold"),
-                                 fg=self.str_colors["green"],
-                                 )
-        self.greet_txt = tk.Label(self.status_frame, text="...",
+        self.greet_txt = tk.Label(self.right_frame, text="...",
                                  font=("Arial", 9, "bold"),
                                  fg=self.get_color(2)[1],
                                  )
         self.status_txt.pack(pady=2)
-        self.greet_txt.pack(pady=4)
+        self.greet_txt.pack(pady=(4, 0))
         # Const UI elemnts
-        copyright_txt = tk.Label(self.right_frame, text="© 2026 github.com/Daniyalpr.\n All rights reserved :)",
-                                 font=("Arial", 9, "bold"),
+        copyright_txt = tk.Label(self.right_frame, text="© 2026 github.com/Daniyalpr.\nAll rights reserved :)",
+                                 font=("Arial", 7, "bold"),
                                  fg=self.get_color(2)[1],
                                  )
-        copyright_txt.pack(pady=80)
+        copyright_txt.pack(pady=(30, 0))
         # Creating tiles
         for i in range(SIZE):
             row = []
@@ -128,22 +151,26 @@ class Game():
             new_mat.append(row[::-1])
         return new_mat
 
-    def redo(self):
-        if self.redo_left <= 0 or self.prev1_nums is None or not self.can_play:
+    def save_game(self):
+        pass
+    def load_game(self):
+        pass
+    def undo(self):
+        if self.undo_left <= 0 or self.prev1_nums is None or not self.can_play:
             return 
-        self.redo_left -= 1
+        self.undo_left -= 1
         self.nums, self.prev1_nums, self.prev2_nums = self.prev1_nums, self.prev2_nums, None
-        self.redo_button_changed = True
+        self.undo_button_changed = True
         self.update_ui()
-        print("Redo")
+        print("undo")
 
     def restart_game(self):
         self.score = 0
         self.nums = np.full((SIZE, SIZE), 0)
         self.can_play = True
-        self.redo_left = 2
-        self.redo_button_changed = True
-        self.status_txt.config(text="you can play!", fg=str_colors["green"])
+        self.undo_left = 2
+        self.undo_button_changed = True
+        self.status_txt.config(text="PLAY!", fg=self.str_colors["green"])
         self.greet_txt.config(text="...")
         self.spawn()
         self.spawn()
@@ -207,16 +234,16 @@ class Game():
                 if tile["text"] != st:
                     backg, foreg = self.get_color(num)
                     tile.config(text=st, bg=backg, fg=foreg)
-        # Updating redo button
-        if self.redo_button_changed:
-            backg, foreg = self.get_color(4) if self.redo_left > 0 else self.get_color(0)
-            self.redo_button.config(text=f"Redo {self.redo_left}", bg=backg, fg=foreg, 
+        # Updating undo button
+        if self.undo_button_changed:
+            backg, foreg = self.get_color(4) if self.undo_left > 0 else self.get_color(0)
+            self.undo_button.config(text=f"undo {self.undo_left}", bg=backg, fg=foreg, 
                        highlightcolor=foreg, 
                        highlightbackground=foreg, 
                         )
-            self.redo_button_changed = False
+            self.undo_button_changed = False
         if not self.can_play:
-            self.status_txt.config(fg=self.str_colors["red"], text="game over")
+            self.status_txt.config(fg=self.str_colors["red"], text="GAME OVER")
             self.greet_txt.config(text=self.get_greeting())
             self.update_status = False
 

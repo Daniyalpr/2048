@@ -9,4 +9,3 @@ def write_highscore(score, file_name="highscore.txt"):
     with open(file_name, "w") as f:
         f.write(str(score))
 
-
