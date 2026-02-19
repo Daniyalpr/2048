@@ -210,7 +210,14 @@ class Game():
             self.restart_game()
 
     def game_over(self):
-        return (self.nums == 0).sum() == 0
+        if (self.nums == 0).sum() != 0:
+            return False
+        nums_copy = self.nums.copy()
+        for move in ["Right", "Left", "Up", "Down"]:
+            new_nums = self.move(move, nums_copy)
+            if not np.array_equal(nums_copy, new_nums):
+                return False
+        return True
     def spawn(self):
         rand = random.random()
         spawn_num = 2 if rand <= 0.9 else 4
