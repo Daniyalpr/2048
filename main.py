@@ -157,50 +157,51 @@ class Game():
 
 
 
-    def _combine(self):
+    def _combine(self, mat):
         """
         Note: the function assumes that your move direction is Left.
         """
-        for i, row in enumerate(self.nums):
+        for i, row in enumerate(mat):
             for idx in range(len(row)-1):
                 if row[idx] == row[idx+1]:
                     self.score += 2 * row[idx]
-                    self.nums[i, idx] = 2 * row[idx]
-                    self.nums[i, idx+1] = 0
+                    mat[i, idx] = 2 * row[idx]
+                    mat[i, idx+1] = 0
+        return mat
 
 
-    def move_rows_left(self):
+    def move_rows_left(self, mat):
         new_mat = np.full((SIZE, SIZE), None)
-        for idx, row in enumerate(self.nums):
+        for idx, row in enumerate(mat):
           new_row = row[row != 0]
           new_row = np.append(new_row, [0] * (len(row) - len(new_row)))
           new_mat[idx] = new_row
-        self.nums = new_mat
+        return new_mat
         
-    def move(self, dire:str):
+    def move(self, dire:str, mat):
         if dire == "Left" or dire.lower() == "a":
-            self.move_rows_left()
-            self._combine()
-            self.move_rows_left()
+            mat = self.move_rows_left(mat)
+            mat = self._combine(mat)
+            mat = self.move_rows_left(mat)
+            return mat
         elif dire == "Right" or dire.lower() == "d":
-            self.nums = self.nums[:, ::-1]
-            self.move("Left")
-            self.nums = self.nums[:, ::-1]
+            mat = mat[:, ::-1]
+            mat = self.move("Left", mat)
+            mat = mat[:, ::-1]
         elif dire == "Up" or dire.lower() == "w":
-            self.nums = self.nums.T
-            self.move("Left")
-            self.nums = self.nums.T
+            mat = mat.T
+            mat = self.move("Left", mat)
+            mat = mat.T
         elif dire == "Down" or dire.lower() == "s":
-            self.nums = self.nums.T
-            self.move("Right")
-            self.nums.T
-
-
+            mat = mat.T
+            mat = self.move("Right", mat)
+            mat = mat.T
+        return mat
     def key_hand(self, key):
         key_name = key.keysym
         if key_name in ["Right", "Left", "Down", "Up", "d", "a", "s", "w", "D", "A", "S", "W"] and self.can_play:
             nums_copy = self.nums.copy()
-            self.move(key_name)
+            self.nums = self.move(key_name, self.nums)
             if not np.array_equal(nums_copy, self.nums):
                 self.prev1_nums, self.prev2_nums = nums_copy, self.prev1_nums
                 self.spawn()
