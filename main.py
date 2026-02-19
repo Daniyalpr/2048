@@ -15,10 +15,14 @@ class Game():
         self.nums = np.array(nums) or np.full((SIZE, SIZE), 0)
         self.prev1_nums = None
         self.prev2_nums = None
+        self.right_frame = tk.Frame(root)
+        self.right_frame.grid(row=0, column=1, padx=3) 
+        self.left_frame = tk.Frame(root)
+        self.left_frame.grid(row=0, column=0)
         self.root = root
         self.root.bind("<Key>", self.key_hand)
-        self.score_frame = tk.Frame(root)
-        self.score_frame.pack(pady=5)
+        self.score_frame = tk.Frame(self.left_frame)
+        self.score_frame.grid(row=0, column=0 , pady=5)
         self.score_board = tk.Label(self.score_frame, width=14, height=2, text=f"SCORE\n{self.score}", bg=self.get_color(4)[0], fg=self.get_color(4)[1], font=("Arial", 15, "bold"))
         self.score_board.grid(row=1, column=1, padx=5)
 
@@ -38,7 +42,7 @@ class Game():
         self.highscore_board.grid(row=1, column=2, padx=5)
 
 
-        self.reset_button = tk.Button(root,
+        self.reset_button = tk.Button(self.right_frame,
                                        width=14,
                                        height=2, 
                                        text="NEW GAME", 
@@ -50,10 +54,17 @@ class Game():
                                         highlightbackground=self.get_color(2)[1], 
                                        command=self.restart_game
                                        )
-        self.frame = tk.Frame(root, bg="gray")
-        self.frame.pack()
+        self.reset_button.pack(pady=4)
+        self.frame = tk.Frame(self.left_frame, bg="gray")
+        self.frame.grid(row=1, column=0)
         self.tiles = []
         self.score = 0
+        # Const UI elemnts
+        copyright_txt = tk.Label(self.right_frame, text="© 2026 github.com/Daniyalpr.\n All rights reserved :)",
+                                 font=("Arial", 9, "bold"),
+                                 fg=self.get_color(2)[1],
+                                 )
+        copyright_txt.pack(pady=80)
         # Creating tiles
         for i in range(SIZE):
             row = []
@@ -90,7 +101,6 @@ class Game():
         self.can_play = True
         self.spawn()
         self.spawn()
-        self.reset_button.pack_forget()
         self.update_ui()
     def update(self):
         self.update_ui()
@@ -99,7 +109,6 @@ class Game():
             print("Game Over")
             if self.score > file_utils.read_highscore():
                 file_utils.write_highscore(self.score)
-            self.reset_button.pack(pady=5)
     def update_ui(self):
         self.score_board["text"] = f"SCORE\n{self.score}"
         for i, row in enumerate(self.tiles):
