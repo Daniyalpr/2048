@@ -1,6 +1,7 @@
 import file_utils
 import random
 import tkinter as tk
+from tkinter import filedialog
 import numpy as np
 root = tk.Tk()
 SIZE = 4
@@ -59,7 +60,7 @@ class Game():
                                         highlightthickness=2, 
                                         highlightcolor=self.get_color(2)[1], 
                                         highlightbackground=self.get_color(2)[1], 
-                                       command=self.load_game
+                                       command=self.load
                                        )
         save_button = tk.Button(self.right_frame,
                                        width=14,
@@ -71,7 +72,7 @@ class Game():
                                         highlightthickness=2, 
                                         highlightcolor=self.get_color(2)[1], 
                                         highlightbackground=self.get_color(2)[1], 
-                                       command=self.save_game
+                                       command=self.save
                                        )
         self.reset_button = tk.Button(self.right_frame,
                                        width=14,
@@ -143,6 +144,24 @@ class Game():
         self.spawn()
         self.update_ui()
 
+    def load(self):
+        file_path = filedialog.askopenfilename(
+                filetypes=[("Game Save Files", "*.txt")]
+                )
+        if not file_path:
+            return
+        grid, score = file_utils.load_game(file_path)
+        self.restart_game()
+        self.nums = grid
+        self.score = score
+        self.update()
+    def save(self):
+        file_path = filedialog.asksaveasfilename(
+                filetypes=[("Game Save Files", "*.txt")]
+                )
+        if not file_path:
+            return
+        file_utils.save_game(self.nums, self.score, file_path)
     def transpose(self, mat):
         return [list(row) for row in zip(*mat)]
     def reverse(self, mat):
@@ -151,10 +170,6 @@ class Game():
             new_mat.append(row[::-1])
         return new_mat
 
-    def save_game(self):
-        pass
-    def load_game(self):
-        pass
     def undo(self):
         if self.undo_left <= 0 or self.prev1_nums is None or not self.can_play:
             return 
@@ -217,7 +232,7 @@ class Game():
                 ]
 
         if self.score == int(file_utils.read_highscore()):
-            return "Congrats, thats a new highscore!"   
+            return "Congrats, that's a new high score!"   
         if self.score >= 2800:
             return random.choice(high_score)
         elif 1800 <= self.score:
