@@ -241,7 +241,8 @@ class Game():
             return random.choice(low_score)
 
     def update_ui(self):
-        self.score_board["text"] = f"SCORE\n{self.score}"
+        self.score_board.config(text=f"SCORE\n{self.score}")
+        self.highscore_board.config(text=f"BEST\n{file_utils.read_highscore()}")
         for i, row in enumerate(self.tiles):
             for j, tile in enumerate(row):
                 num = self.nums[i, j]
