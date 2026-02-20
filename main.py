@@ -238,7 +238,7 @@ class Game():
                 ]
 
         if self.score == int(file_utils.read_highscore()):
-            return "New high score!!",
+            return "New high score!!"
         if self.score >= 2800:
             return random.choice(high_score)
         elif 1800 <= self.score:
