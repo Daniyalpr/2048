@@ -161,6 +161,8 @@ class Game():
                 )
         if not file_path:
             return
+        if not file_path.lower().endswith(".txt"):
+            file_path += ".txt"
         file_utils.save_game(self.nums, self.score, file_path)
     def transpose(self, mat):
         return [list(row) for row in zip(*mat)]
