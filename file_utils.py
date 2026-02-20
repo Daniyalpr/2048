@@ -16,13 +16,13 @@ def save_game(tiles, score, file_name="save.txt"):
     txt += "score: " + str(score)
     with open(file_name, "w") as f:
         f.write(txt)
-    print(txt)
+    print("Save:\n" + txt)
 def load_game(file_name="save.txt"):
     """
     The function returns a tuple which the first elment is
     a grid of numbers and second element is score.
     """
-    out = np.full((4, 4), None)
+    grid = np.full((4, 4), None)
     try:
         with open(file_name, "r") as f:
             lines = f.readlines()
@@ -32,9 +32,9 @@ def load_game(file_name="save.txt"):
             for idx, line in enumerate(lines):
                 row = line[:-1].split()
                 row = [int(i) for i in row]
-                out[idx] = row
+                grid[idx] = row
     except:
         print("Error: The file is invalid")
         return None
-    return (out, score)
+    return (grid, score)
 
