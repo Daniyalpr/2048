@@ -150,7 +150,12 @@ class Game():
                 )
         if not file_path:
             return
-        grid, score = file_utils.load_game(file_path)
+        if not file_path.lower().endswith(".txt"):
+            return 
+        res = file_utils.load_game(file_path)
+        if res is None:
+            return
+        grid, score = res
         self.restart_game()
         self.nums = grid
         self.score = score

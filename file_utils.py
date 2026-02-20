@@ -23,14 +23,18 @@ def load_game(file_name="save.txt"):
     a grid of numbers and second element is score.
     """
     out = np.full((4, 4), None)
-    with open(file_name, "r") as f:
-        lines = f.readlines()
-        score_line = lines.pop()
-        score = score_line.strip().split()[1]
-        score = int(score)
-        for idx, line in enumerate(lines):
-            row = line[:-1].split()
-            row = [int(i) for i in row]
-            out[idx] = row
+    try:
+        with open(file_name, "r") as f:
+            lines = f.readlines()
+            score_line = lines.pop()
+            score = score_line.strip().split()[1]
+            score = int(score)
+            for idx, line in enumerate(lines):
+                row = line[:-1].split()
+                row = [int(i) for i in row]
+                out[idx] = row
+    except:
+        print("Error: The file is invalid")
+        return None
     return (out, score)
 
