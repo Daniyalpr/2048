@@ -207,39 +207,38 @@ class Game():
         self.update_ui()
     def get_greeting(self):
         high_score = [
-                "LEGEND STATUS UNLOCKED 🏆",
-                "New high score!! You're unstoppable 🚀",
-                "Board destroyed. Absolute domination 👑",
-                "You cooked. And it was gourmet ✨",
-                "Tiles trembling right now 🎯",
-                "Brain = 200 IQ 🧠",
-                "That was elite gameplay 🔥",
-                "You didn’t win… you conquered ⚔️"
+                "LEGEND STATUS UNLOCKED!",
+                "Board destroyed",
+                "You cooked. And it was gourmet",
+                "Tiles trembling right now",
+                "Brain = 200 IQ",
+                "That was elite gameplay",
+                "You didn’t win… you conquered!"
                 ]
         med_score = [
-                "Solid run! 👏",
-                "Nice moves there ✨",
-                "You're improving! 🚀",
-                "That was smooth 😌",
-                "Almost legendary 👀",
-                "Keep going — you're close ⚡",
-                "Progress detected 📈",
-                "Next round is yours 😎"
+                "Solid run!",
+                "Nice moves there",
+                "You're improving!",
+                "That was smooth",
+                "Almost legendary",
+                "Keep going — you're close",
+                "Progress detected",
+                "Next round is yours"
                 ]
 
         low_score = [
-                "The tiles said 'not today' 😭",
-                "Warm-up round? 👀",
-                "Plot twist: the board fought back 😤",
-                "Oops 😅 Try again!",
-                "That was just practice mode 🎮",
-                "Shake it off and run it back 💪",
-                "Every legend has a backstory 📖",
-                "Redemption arc loading... ⏳"
+                "The tiles said 'not today'",
+                "Warm-up round?",
+                "Plot twist: the board fought back",
+                "Oops, Try again!",
+                "That was just practice mode",
+                "Shake it off and run it back",
+                "Every legend has a backstory",
+                "Redemption arc loading... "
                 ]
 
         if self.score == int(file_utils.read_highscore()):
-            return "Congrats, that's a new high score!"   
+            return "New high score!!",
         if self.score >= 2800:
             return random.choice(high_score)
         elif 1800 <= self.score:
